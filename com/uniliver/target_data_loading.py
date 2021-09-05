@@ -42,17 +42,7 @@ if __name__ == '__main__':
 
     cp_df.show()
 
-    print("Writing txn_fact dataframe to AWS Redshift Table   >>>>>>>")
 
-
-    cp_df.write \
-        .format("io.github.spark_redshift_community.spark.redshift") \
-        .option("tempdir", "s3a://" + app_conf["s3_conf"]["s3_bucket"] + "/temp") \
-        .option("forward_spark_s3_credentials", "true") \
-        .option("dbtable", "DATAMART.RTL_TXN_FCT") \
-        .save()
-
-    print("Completed   <<<<<<<<<")
 
     # spark-submit --packages "org.apache.hadoop:hadoop-aws:2.7.4,mysql:mysql-connector-java:8.0.15,com.springml:spark-sftp_2.11:1.1.1,org.mongodb.spark:mongo-spark-connector_2.11:2.4.1" com/uniliver/target_data_loading.py
 
