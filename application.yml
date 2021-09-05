@@ -1,4 +1,7 @@
 source_list:
+  - SB
+  - OL
+  - CP
   - ADDR
 
 SB:
