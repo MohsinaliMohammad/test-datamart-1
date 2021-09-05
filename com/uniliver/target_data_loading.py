@@ -36,11 +36,23 @@ if __name__ == '__main__':
     hadoop_conf.set("fs.s3a.secret.key", app_secret["s3_conf"]["secret_access_key"])
 
     cp_df = spark.read \
-        .parquet("s3a://" + app_conf["s3_conf"]["s3_bucket"] + "/" + app_conf["s3_conf"]["staging_dir"] + "/CP") \
-        .filter(col("run_dt") = current_date())
+        .parquet("s3a://" + app_conf["s3_conf"]["s3_bucket"] + "/" + app_conf["s3_conf"]["staging_dir"] + "/CP")
+        #.filter(col("run_dt") = current_date())
 
 
     cp_df.show()
+
+    print("Writing txn_fact dataframe to AWS Redshift Table   >>>>>>>")
+
+
+    cp_df.write \
+        .format("io.github.spark_redshift_community.spark.redshift") \
+        .option("tempdir", "s3a://" + app_conf["s3_conf"]["s3_bucket"] + "/temp") \
+        .option("forward_spark_s3_credentials", "true") \
+        .option("dbtable", "DATAMART.RTL_TXN_FCT") \
+        .save()
+
+    print("Completed   <<<<<<<<<")
 
 
 
