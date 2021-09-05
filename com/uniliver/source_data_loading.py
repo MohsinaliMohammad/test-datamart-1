@@ -106,14 +106,14 @@ if __name__ == '__main__':
 
             addr_df.show()
 
-            addr_df.select(col('consumer_id'),
+            address_df = addr_df.select(col('consumer_id'),
                            col("address.street").alias("street"),
                            col("address.city").alias("city"),
                            col("address.state").alias("state"),
                            col("mobile-no")) \
                 .withColumn("run_dt", current_date())
 
-            addr_df \
+            address_df \
                 .write \
                 .partitionBy("run_dt") \
                 .mode("overwrite") \
