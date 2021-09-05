@@ -34,10 +34,10 @@ if __name__ == '__main__':
     hadoop_conf = spark.sparkContext._jsc.hadoopConfiguration()
     hadoop_conf.set("fs.s3a.access.key", app_secret["s3_conf"]["access_key"])
     hadoop_conf.set("fs.s3a.secret.key", app_secret["s3_conf"]["secret_access_key"])
-    print("Hello")
+
     cp_df = spark.read \
         .parquet("s3a://" + app_conf["s3_conf"]["s3_bucket"] + "/" + app_conf["s3_conf"]["staging_dir"] + "/CP") \
-        .filter("run_dt=", current_date())
+        .filter("run_dt="+ current_date())
 
 
     cp_df.show()
