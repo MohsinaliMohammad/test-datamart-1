@@ -44,17 +44,23 @@ if __name__ == '__main__':
 
     print("Writing txn_fact dataframe to AWS Redshift Table   >>>>>>>")
 
+    jdbc_url = ut.get_redshift_jdbc_url(app_secret)
+    print(jdbc_url)
     cp_df.write \
         .format("io.github.spark_redshift_community.spark.redshift") \
-        .option("tempdir", "s3a://" + app_conf["s3_conf"]["s3_bucket"] + "/temp") \
+        .option("url", jdbc_url) \
+        .option("query", app_conf["redshift_conf"]["query"]) \
         .option("forward_spark_s3_credentials", "true") \
+        .option("tempdir", "s3a://" + app_conf["s3_conf"]["s3_bucket"] + "/temp") \
         .option("tableName", "DATAMART.REGIS_DIM") \
         .save()
+
 
     print("Completed   <<<<<<<<<")
 
 
 
     # spark-submit --packages "org.apache.hadoop:hadoop-aws:2.7.4,mysql:mysql-connector-java:8.0.15,com.springml:spark-sftp_2.11:1.1.1,org.mongodb.spark:mongo-spark-connector_2.11:2.4.1" com/uniliver/target_data_loading.py
+# spark-submit --jars "https://s3.amazonaws.com/redshift-downloads/drivers/jdbc/1.2.36.1060/RedshiftJDBC42-no-awssdk-1.2.36.1060.jar" --packages "io.github.spark-redshift-community:spark-redshift_2.11:4.0.1,org.apache.spark:spark-avro_2.11:2.4.2,org.apache.hadoop:hadoop-aws:2.7.4" com/uniliver/target_data_loading.py
 
 
