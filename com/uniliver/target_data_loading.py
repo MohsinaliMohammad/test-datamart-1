@@ -83,6 +83,32 @@ if __name__ == '__main__':
                 .mode("overwrite") \
                 .save()
 
+        elif tgt == 'RTL_TXN_FCT':
+            cp_df = spark.read \
+                .parquet("s3a://" + app_conf["s3_conf"]["s3_bucket"] + "/" + app_conf["s3_conf"]["staging_dir"] + "/SB")\
+                .parquet("s3a://" + app_conf["s3_conf"]["s3_bucket"] + "/" + app_conf["s3_conf"]["staging_dir"] + "/OL")\
+                .format("io.github.spark_redshift_community.spark.redshift")\
+                .option("url", jdbc_url) \
+                .option("query", app_conf["redshift_conf"]["query"]) \
+                .option("forward_spark_s3_credentials", "true")\
+                .option("tempdir", "s3a://" + app_conf["s3_conf"]["s3_bucket"] + "/temp")\
+            # .filter(col("run_dt") = current_date())
+
+            cp_df.show()
+
+            print("Writing txn_fact dataframe to AWS Redshift Table   >>>>>>>")
+
+            jdbc_url = ut.get_redshift_jdbc_url(app_secret)
+            print(jdbc_url)
+            cp_df.coalesce(1).write \
+                .format("io.github.spark_redshift_community.spark.redshift") \
+                .option("url", jdbc_url) \
+                .option("tempdir", "s3a://" + app_conf["s3_conf"]["s3_bucket"] + "/temp") \
+                .option("forward_spark_s3_credentials", "true") \
+                .option("dbtable", "DATAMART.CHILD_DIM") \
+                .mode("overwrite") \
+                .save()
+
     print("Completed   <<<<<<<<<")
 
 # spark-submit --packages "org.apache.hadoop:hadoop-aws:2.7.4,mysql:mysql-connector-java:8.0.15,com.springml:spark-sftp_2.11:1.1.1,org.mongodb.spark:mongo-spark-connector_2.11:2.4.1" com/uniliver/target_data_loading.py
