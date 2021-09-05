@@ -48,7 +48,7 @@ if __name__ == '__main__':
         .format("io.github.spark_redshift_community.spark.redshift") \
         .option("tempdir", "s3a://" + app_conf["s3_conf"]["s3_bucket"] + "/temp") \
         .option("forward_spark_s3_credentials", "true") \
-        .option("dbtable", "REGIS_DIM") \
+        .option("tableName", "DATAMART.REGIS_DIM") \
         .save()
 
     print("Completed   <<<<<<<<<")
