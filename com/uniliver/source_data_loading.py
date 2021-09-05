@@ -110,8 +110,7 @@ if __name__ == '__main__':
                            col("address.street").alias("street"),
                            col("address.city").alias("city"),
                            col("address.state").alias("state"),
-                           col("mobile-no"),
-                           col("run_dt")) \
+                           col("mobile-no")) \
                 .withColumn("run_dt", current_date())
 
             addr_df \
