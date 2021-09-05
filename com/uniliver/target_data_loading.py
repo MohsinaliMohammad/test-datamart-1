@@ -46,17 +46,17 @@ if __name__ == '__main__':
 
     jdbc_url = ut.get_redshift_jdbc_url(app_secret)
     print(jdbc_url)
-    cp_df.write \
+
+    cp_df.coalesce(1).write \
         .format("io.github.spark_redshift_community.spark.redshift") \
         .option("url", jdbc_url) \
-        .option("query", app_conf["redshift_conf"]["query"]) \
-        .option("forward_spark_s3_credentials", "true") \
         .option("tempdir", "s3a://" + app_conf["s3_conf"]["s3_bucket"] + "/temp") \
-        .option("tableName", "DATAMART.REGIS_DIM") \
+        .option("forward_spark_s3_credentials", "true") \
+        .option("dbtable", "DATAMART.REGIS_DIM") \
+        .mode("overwrite") \
         .save()
 
-
-    print("Completed   <<<<<<<<<")
+print("Completed   <<<<<<<<<")
 
 
 
