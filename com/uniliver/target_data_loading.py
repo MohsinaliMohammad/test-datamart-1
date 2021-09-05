@@ -37,7 +37,7 @@ if __name__ == '__main__':
 
     cp_df = spark.read \
         .parquet("s3a://" + app_conf["s3_conf"]["s3_bucket"] + "/" + app_conf["s3_conf"]["staging_dir"] + "/CP") \
-        .filter("run_dt="+ current_date())
+        #.filter("run_dt="+ current_date())
 
 
     cp_df.show()
