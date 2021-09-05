@@ -35,32 +35,59 @@ if __name__ == '__main__':
     hadoop_conf.set("fs.s3a.access.key", app_secret["s3_conf"]["access_key"])
     hadoop_conf.set("fs.s3a.secret.key", app_secret["s3_conf"]["secret_access_key"])
 
-    cp_df = spark.read \
-        .parquet("s3a://" + app_conf["s3_conf"]["s3_bucket"] + "/" + app_conf["s3_conf"]["staging_dir"] + "/CP")
-        #.filter(col("run_dt") = current_date())
+    tgt_list = app_conf['target_list']
+    staging_dir = app_conf["s3_conf"]["staging_dir"]
+    for tgt in tgt_list:
+        tgt_conf = app_conf[tgt]
+        stg_path = "s3a://" + app_conf["s3_conf"]["s3_bucket"] + "/" + staging_dir + "/"
+        if tgt == 'REGIS_DIM':
 
+            cp_df = spark.read \
+                .parquet("s3a://" + app_conf["s3_conf"]["s3_bucket"] + "/" + app_conf["s3_conf"]["staging_dir"] + "/CP")
+                #.filter(col("run_dt") = current_date())
 
-    cp_df.show()
+            cp_df.show()
 
-    print("Writing txn_fact dataframe to AWS Redshift Table   >>>>>>>")
+            print("Writing txn_fact dataframe to AWS Redshift Table   >>>>>>>")
 
-    jdbc_url = ut.get_redshift_jdbc_url(app_secret)
-    print(jdbc_url)
+            jdbc_url = ut.get_redshift_jdbc_url(app_secret)
+            print(jdbc_url)
 
-    cp_df.coalesce(1).write \
-        .format("io.github.spark_redshift_community.spark.redshift") \
-        .option("url", jdbc_url) \
-        .option("tempdir", "s3a://" + app_conf["s3_conf"]["s3_bucket"] + "/temp") \
-        .option("forward_spark_s3_credentials", "true") \
-        .option("dbtable", "DATAMART.REGIS_DIM") \
-        .mode("overwrite") \
-        .save()
+            cp_df.coalesce(1).write \
+                .format("io.github.spark_redshift_community.spark.redshift") \
+                .option("url", jdbc_url) \
+                .option("tempdir", "s3a://" + app_conf["s3_conf"]["s3_bucket"] + "/temp") \
+                .option("forward_spark_s3_credentials", "true") \
+                .option("dbtable", "DATAMART.REGIS_DIM") \
+                .mode("overwrite") \
+                .save()
 
-print("Completed   <<<<<<<<<")
+        print("Completed   <<<<<<<<<")
 
+        elif tgt == 'CHILD_DIM':
+            cp_df = spark.read \
+                .parquet("s3a://" + app_conf["s3_conf"]["s3_bucket"] + "/" + app_conf["s3_conf"]["staging_dir"] + "/CP")
+            # .filter(col("run_dt") = current_date())
 
+            cp_df.show()
 
-    # spark-submit --packages "org.apache.hadoop:hadoop-aws:2.7.4,mysql:mysql-connector-java:8.0.15,com.springml:spark-sftp_2.11:1.1.1,org.mongodb.spark:mongo-spark-connector_2.11:2.4.1" com/uniliver/target_data_loading.py
+            print("Writing txn_fact dataframe to AWS Redshift Table   >>>>>>>")
+
+            jdbc_url = ut.get_redshift_jdbc_url(app_secret)
+            print(jdbc_url)
+
+            cp_df.coalesce(1).write \
+                .format("io.github.spark_redshift_community.spark.redshift") \
+                .option("url", jdbc_url) \
+                .option("tempdir", "s3a://" + app_conf["s3_conf"]["s3_bucket"] + "/temp") \
+                .option("forward_spark_s3_credentials", "true") \
+                .option("dbtable", "DATAMART.CHILD_DIM") \
+                .mode("overwrite") \
+                .save()
+
+    print("Completed   <<<<<<<<<")
+
+# spark-submit --packages "org.apache.hadoop:hadoop-aws:2.7.4,mysql:mysql-connector-java:8.0.15,com.springml:spark-sftp_2.11:1.1.1,org.mongodb.spark:mongo-spark-connector_2.11:2.4.1" com/uniliver/target_data_loading.py
 # spark-submit --jars "https://s3.amazonaws.com/redshift-downloads/drivers/jdbc/1.2.36.1060/RedshiftJDBC42-no-awssdk-1.2.36.1060.jar" --packages "io.github.spark-redshift-community:spark-redshift_2.11:4.0.1,org.apache.spark:spark-avro_2.11:2.4.2,org.apache.hadoop:hadoop-aws:2.7.4" com/uniliver/target_data_loading.py
 
 

@@ -4,6 +4,10 @@ source_list:
   - CP
   - ADDR
 
+target_list:
+  - REGIS_DIM
+  - CHILD_DIM
+
 SB:
   mysql_conf:
     partition_column: App_Transaction_Id
