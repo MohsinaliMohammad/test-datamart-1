@@ -103,8 +103,8 @@ if __name__ == '__main__':
                 .option("query", app_conf["redshift_conf"]["query"]) \
                 .option("forward_spark_s3_credentials", "true") \
                 .option("tempdir", "s3a://" + app_conf["s3_conf"]["s3_bucket"] + "/temp") \
- \
- \
+                .load()
+
             # .filter(col("run_dt") = current_date())
 
             #sb_df.show()
