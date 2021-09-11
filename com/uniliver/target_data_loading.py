@@ -85,7 +85,7 @@ if __name__ == '__main__':
 
         elif tgt == 'RTL_TXN_FCT':
             cp_df = spark.read \
-                .parquet("s3a://" + app_conf["s3_conf"]["s3_bucket"] + "/" + app_conf["s3_conf"]["staging_dir"] + "/SB")\
+                .parquet("s3a://" + app_conf["s3_conf"]["s3_bucket"] + "/" + app_conf["s3_conf"]["staging_dir"] + "/SB")
 
             # .filter(col("run_dt") = current_date())
 
