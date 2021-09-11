@@ -48,7 +48,7 @@ if __name__ == '__main__':
 
             cp_df.show()
 
-            print("Writing txn_fact dataframe to AWS Redshift Table   >>>>>>>")
+            print("Writing regis_txn_fact dataframe to AWS Redshift Table   >>>>>>>")
 
             jdbc_url = ut.get_redshift_jdbc_url(app_secret)
             print(jdbc_url)
@@ -69,7 +69,7 @@ if __name__ == '__main__':
 
             cp_df.show()
 
-            print("Writing txn_fact dataframe to AWS Redshift Table   >>>>>>>")
+            print("Writing child_txn_fact dataframe to AWS Redshift Table   >>>>>>>")
 
             jdbc_url = ut.get_redshift_jdbc_url(app_secret)
             print(jdbc_url)
