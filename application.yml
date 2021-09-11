@@ -94,7 +94,7 @@ redshift_conf:
   filetype: csv
   delimiter: |
   dbtable: PUBLIC.sales
-  query: SELECT sellerid, pricepaid from PUBLIC.sales
+  query: SELECT * from DATAMART.REGIS_DIM
 
 spark_sql_demo:
   agg_demo: >
