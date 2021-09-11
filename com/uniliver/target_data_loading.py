@@ -109,7 +109,7 @@ if __name__ == '__main__':
 
             sb_df.show()
             ol_df.show()
-            reg_df.show()
+            # reg_df.show()
 
             sb_df.createOrReplaceTempView("SB")
             ol_df.createOrReplaceTempView("OL")
