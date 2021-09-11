@@ -47,13 +47,15 @@ if __name__ == '__main__':
                 #.filter(col("run_dt") = current_date())
 
             cp_df.show()
-
+            cp_df.createOrReplaceTempView("CP")
+            regis_dim_df = spark.sql(tgt_conf['loadingQuery'])
+            regis_dim_df.show()
             print("Writing regis_txn_fact dataframe to AWS Redshift Table   >>>>>>>")
 
             jdbc_url = ut.get_redshift_jdbc_url(app_secret)
             print(jdbc_url)
 
-            cp_df.coalesce(1).write \
+            regis_dim_df.coalesce(1).write \
                 .format("io.github.spark_redshift_community.spark.redshift") \
                 .option("url", jdbc_url) \
                 .option("tempdir", "s3a://" + app_conf["s3_conf"]["s3_bucket"] + "/temp") \

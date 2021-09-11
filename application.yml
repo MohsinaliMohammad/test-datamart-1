@@ -5,7 +5,7 @@ source_list:
   - ADDR
 
 target_list:
-  - RTL_TXN_FCT
+  - REGIS_DIM
 
 SB:
   mysql_conf:
