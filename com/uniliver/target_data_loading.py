@@ -89,18 +89,42 @@ if __name__ == '__main__':
                 .save()
 
         elif tgt == 'RTL_TXN_FCT':
-            cp_df = spark.read \
+            sb_df = spark.read \
                 .parquet("s3a://" + app_conf["s3_conf"]["s3_bucket"] + "/" + app_conf["s3_conf"]["staging_dir"] + "/SB")
 
+            ol_df = spark.read \
+                .parquet("s3a://" + app_conf["s3_conf"]["s3_bucket"] + "/" + app_conf["s3_conf"]["staging_dir"] + "/OL")
+
+            jdbc_url = ut.get_redshift_jdbc_url(app_secret)
+            print(jdbc_url)
+            reg_df = spark.read\
+                .format("io.github.spark_redshift_community.spark.redshift") \
+                .option("url", jdbc_url) \
+                .option("query", app_conf["redshift_conf"]["query"]) \
+                .option("forward_spark_s3_credentials", "true") \
+                .option("tempdir", "s3a://" + app_conf["s3_conf"]["s3_bucket"] + "/temp") \
+ \
+ \
             # .filter(col("run_dt") = current_date())
 
-            cp_df.show()
+            sb_df.show()
+            ol_df.show()
+            reg_df.show()
+
+            sb_df.createOrReplaceTempView("SB")
+            ol_df.createOrReplaceTempView("OL")
+            reg_df.createOrReplaceTempView("REGIS_DIM")
+            rtl_fct_df = spark.sql(tgt_conf['loadingQuery'])
+            rtl_fct_df.show()
+
+
+
 
             print("Writing txn_fact dataframe to AWS Redshift Table   >>>>>>>")
 
             jdbc_url = ut.get_redshift_jdbc_url(app_secret)
             print(jdbc_url)
-            cp_df.coalesce(1).write \
+            rtl_fct_df.coalesce(1).write \
                 .format("io.github.spark_redshift_community.spark.redshift") \
                 .option("url", jdbc_url) \
                 .option("tempdir", "s3a://" + app_conf["s3_conf"]["s3_bucket"] + "/temp") \
