@@ -86,8 +86,8 @@ if __name__ == '__main__':
                 test = src+"_df"
                 test = spark.read.parquet("s3a://" + app_conf["s3_conf"]["s3_bucket"] + "/" + app_conf["s3_conf"]["staging_dir"] + src)
 
-
-
+                test.show()
+                test.createOrReplaceTempView(src)
 
                 # create a function for this
             jdbc_url = ut.get_redshift_jdbc_url(app_secret)
@@ -96,11 +96,11 @@ if __name__ == '__main__':
 
             # .filter(col("run_dt") = current_date())
 
-            test.show()
+
             #ol_df.show()
             reg_df.show(5, False)
 
-            test.createOrReplaceTempView("SB")
+
            # ol_df.createOrReplaceTempView("OL")
             reg_df.createOrReplaceTempView("REGIS_DIM")
             rtl_fct_df = spark.sql(tgt_conf['loadingQuery'])
