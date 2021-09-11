@@ -55,14 +55,11 @@ if __name__ == '__main__':
             jdbc_url = ut.get_redshift_jdbc_url(app_secret)
             print(jdbc_url)
 
-            regis_dim_df.coalesce(1).write \
-                .format("io.github.spark_redshift_community.spark.redshift") \
-                .option("url", jdbc_url) \
-                .option("tempdir", "s3a://" + app_conf["s3_conf"]["s3_bucket"] + "/temp") \
-                .option("forward_spark_s3_credentials", "true") \
-                .option("dbtable", "DATAMART.REGIS_DIM") \
-                .mode("overwrite") \
-                .save()
+            # create function for this
+
+            regis_dim_df = ut.write_to_redshift_reg(spark,jdbc_url,app_conf)
+
+
 
         elif tgt == 'CHILD_DIM':
             cp_df = spark.read \
@@ -78,41 +75,33 @@ if __name__ == '__main__':
 
             jdbc_url = ut.get_redshift_jdbc_url(app_secret)
             print(jdbc_url)
-
-            child_dim_df.coalesce(1).write \
-                .format("io.github.spark_redshift_community.spark.redshift") \
-                .option("url", jdbc_url) \
-                .option("tempdir", "s3a://" + app_conf["s3_conf"]["s3_bucket"] + "/temp") \
-                .option("forward_spark_s3_credentials", "true") \
-                .option("dbtable", "DATAMART.CHILD_DIM") \
-                .mode("overwrite") \
-                .save()
+            # create a function for this
+            child_dim_df = ut.write_to_redshift_child(spark,jdbc_url,app_conf)
 
         elif tgt == 'RTL_TXN_FCT':
-            sb_df = spark.read \
-                .parquet("s3a://" + app_conf["s3_conf"]["s3_bucket"] + "/" + app_conf["s3_conf"]["staging_dir"] + "/SB")
+            # iterate over the list of parquet
 
-            ol_df = spark.read \
-                .parquet("s3a://" + app_conf["s3_conf"]["s3_bucket"] + "/" + app_conf["s3_conf"]["staging_dir"] + "/OL")
+            src_list_test = ["SB","OL"]
+            for src in src_list_test():
+                test = src+"_df"
+                test = spark.read.parquet("s3a://" + app_conf["s3_conf"]["s3_bucket"] + "/" + app_conf["s3_conf"]["staging_dir"] + src)
 
+
+
+
+                # create a function for this
             jdbc_url = ut.get_redshift_jdbc_url(app_secret)
             print(jdbc_url)
-            reg_df = spark.read\
-                .format("io.github.spark_redshift_community.spark.redshift") \
-                .option("url", jdbc_url) \
-                .option("query", app_conf["redshift_conf"]["query"]) \
-                .option("forward_spark_s3_credentials", "true") \
-                .option("tempdir", "s3a://" + app_conf["s3_conf"]["s3_bucket"] + "/temp") \
-                .load()
+            reg_df = ut.read_to_S3(spark,jdbc_url,app_conf)
 
             # .filter(col("run_dt") = current_date())
 
-            #sb_df.show()
+            test.show()
             #ol_df.show()
             reg_df.show(5, False)
 
-            sb_df.createOrReplaceTempView("SB")
-            ol_df.createOrReplaceTempView("OL")
+            test.createOrReplaceTempView("SB")
+           # ol_df.createOrReplaceTempView("OL")
             reg_df.createOrReplaceTempView("REGIS_DIM")
             rtl_fct_df = spark.sql(tgt_conf['loadingQuery'])
             rtl_fct_df.show()
