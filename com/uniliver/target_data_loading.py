@@ -81,46 +81,26 @@ if __name__ == '__main__':
         elif tgt == 'RTL_TXN_FCT':
             # iterate over the list of parquet
 
-            src_list_test = ["SB","OL"]
-            for src in src_list_test():
-                test = src+"_df"
-                test = spark.read.parquet("s3a://" + app_conf["s3_conf"]["s3_bucket"] + "/" + app_conf["s3_conf"]["staging_dir"] + src)
+            src_list = tgt_conf['source_data']
+            for src in src_list:
+                spark.read.parquet("s3a://" + app_conf["s3_conf"]["s3_bucket"] + "/" + app_conf["s3_conf"]["staging_dir"] + src)\
+                    .createOrReplaceTempView(src)
 
-                test.show()
-                test.createOrReplaceTempView(src)
-
-                # create a function for this
             jdbc_url = ut.get_redshift_jdbc_url(app_secret)
             print(jdbc_url)
-            reg_df = ut.read_to_S3(spark,jdbc_url,app_conf)
+            ut.read_to_redshift(spark, jdbc_url, app_conf)\
+                .createOrReplaceTempView("REGIS_DIM")
 
             # .filter(col("run_dt") = current_date())
 
-
-            #ol_df.show()
-            reg_df.show(5, False)
-
-
            # ol_df.createOrReplaceTempView("OL")
-            reg_df.createOrReplaceTempView("REGIS_DIM")
             rtl_fct_df = spark.sql(tgt_conf['loadingQuery'])
             rtl_fct_df.show()
-
-
-
-
             print("Writing txn_fact dataframe to AWS Redshift Table   >>>>>>>")
 
             jdbc_url = ut.get_redshift_jdbc_url(app_secret)
             print(jdbc_url)
-            rtl_fct_df.coalesce(1).write \
-                .format("io.github.spark_redshift_community.spark.redshift") \
-                .option("url", jdbc_url) \
-                .option("tempdir", "s3a://" + app_conf["s3_conf"]["s3_bucket"] + "/temp") \
-                .option("forward_spark_s3_credentials", "true") \
-                .option("dbtable", "DATAMART.RTL_TXN_FCT") \
-                .mode("overwrite") \
-                .save()
+            rtl_fct_df = ut.write_to_redshift(spark,jdbc_url,app_conf)
 
     print("Completed   <<<<<<<<<")
 
