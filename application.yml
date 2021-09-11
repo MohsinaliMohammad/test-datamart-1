@@ -93,7 +93,7 @@ RTL_TXN_FCT:
 redshift_conf:
   filetype: csv
   delimiter: |
-  dbtable: PUBLIC.sales
+  dbtable: DATAMART.REGIS_DIM
   query: SELECT * from DATAMART.REGIS_DIM
 
 spark_sql_demo:

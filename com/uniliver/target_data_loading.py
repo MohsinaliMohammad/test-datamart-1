@@ -107,8 +107,8 @@ if __name__ == '__main__':
  \
             # .filter(col("run_dt") = current_date())
 
-            sb_df.show()
-            ol_df.show()
+            #sb_df.show()
+            #ol_df.show()
             reg_df.show(5, False)
 
             sb_df.createOrReplaceTempView("SB")
