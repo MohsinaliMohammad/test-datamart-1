@@ -1,6 +1,3 @@
-from pyspark.sql import SparkSession
-from pyspark.sql.functions import *
-
 def read_from_mysql(jdbc_params, spark):
     return spark \
         .read.format("jdbc") \
